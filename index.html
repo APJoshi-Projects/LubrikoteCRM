@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bootstrap CRUD with Firebase</title>
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Bootstrap CRUD with Firebase</h1>
+
+    <!-- Form to add new data -->
+    <form id="addForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+
+    <!-- Table to display data -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="dataBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Include Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      // Your Firebase configuration
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Get a reference to the Firebase Realtime Database
+    var database = firebase.database();
+
+    // Function to add data
+    function addData(event) {
+      event.preventDefault();
+      var name = document.getElementById('name').value;
+      var email = document.getElementById('email').value;
+
+      // Push data to Firebase
+      database.ref('users').push({
+        name: name,
+        email: email
+      });
+
+      // Clear form fields
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+    }
+
+    // Function to display data
+    function displayData(snapshot) {
+      var dataBody = document.getElementById('dataBody');
+      dataBody.innerHTML = '';
+
+      snapshot.forEach(function(childSnapshot) {
+        var key = childSnapshot.key;
+        var childData = childSnapshot.val();
+
+        var row = document.createElement('tr');
+
+        var nameCell = document.createElement('td');
+        nameCell.textContent = childData.name;
+        row.appendChild(nameCell);
+
+        var emailCell = document.createElement('td');
+        emailCell.textContent = childData.email;
+        row.appendChild(emailCell);
+
+        var actionsCell = document.createElement('td');
+
+        var editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.className = 'btn btn-primary btn-sm';
+        editButton.addEventListener('click', function() {
+          // Handle edit operation
+        });
+        actionsCell.appendChild(editButton);
+
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'btn btn-danger btn-sm';
+        deleteButton.addEventListener('click', function() {
+          // Handle delete operation
+        });
+        actionsCell.appendChild(deleteButton);
+
+        row.appendChild(actionsCell);
+
+        dataBody.appendChild(row);
+      });
+    }
+
+    // Listen for form submission
+    document.getElementById('addForm').addEventListener('submit', addData);
+
+    // Listen for data changes
+    database.ref('users').on('value', function(snapshot) {
+      displayData(snapshot);
+    });
+  </script>
+
+</body>
+</html>
